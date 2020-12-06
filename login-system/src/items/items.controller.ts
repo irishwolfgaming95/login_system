@@ -10,24 +10,28 @@ import {
 import { CreateItemDto } from './dto/create-item.dto';
 import { ItemsService } from './items.service';
 import { Item } from './interfaces/item.interface';
+import { User as UserModel } from '@prisma/generated'
+
 
 @Controller('items')
 export class ItemsController {
   constructor(private readonly itemService: ItemsService) {}
 
-  @Get()
-  findAll(): Item[] {
-    return this.itemService.findAll();
-  }
+  // @Get()
+  // findAll(): Item[] {
+  //   return this.itemService.findAll();
+  // }
 
   @Get(':id')
   findOne(@Param() param): string {
     return `Item ${param.id}`;
   }
 
-  @Post()
-  create(@Body() createItemDto: CreateItemDto): string {
-    return 'create item';
+  @Post('user')
+  async signupUser(
+    @Body() userData: { name?: string; email: string },
+  ): Promise<UserModel> {
+    return this.itemService.createUser(userData);
   }
 
   @Delete(':id')

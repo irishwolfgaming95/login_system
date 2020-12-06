@@ -1,24 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { Item } from './interfaces/item.interface';
+import { PrismaService } from 'src/prisma/prisma.service';
+import { UserCreateInput, User } from '@prisma/generated';
 
 @Injectable()
 export class ItemsService {
-  private readonly items: Item[] = [
-    {
-      id: '3233442',
-      name: 'Jam',
-      qty: 2,
-      description: 'I am Jam',
-    },
-    {
-      id: '480650',
-      name: 'Rob',
-      qty: 12,
-      description: 'I am Rob',
-    },
-  ];
+  constructor(private prisma: PrismaService) {}
 
-  findAll(): Item[] {
-    return this.items;
+  async createUser(data: UserCreateInput): Promise<User> {
+    return this.prisma.user.create({
+      data,
+    });
   }
 }
