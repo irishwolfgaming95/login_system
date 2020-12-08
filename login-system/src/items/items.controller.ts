@@ -29,7 +29,7 @@ export class ItemsController {
 
   @Post('user')
   async signupUser(
-    @Body() userData: { name?: string; email: string },
+    @Body() userData: { name?: string; email: string } 
   ): Promise<UserModel> {
     return this.itemService.createUser(userData);
   }
