@@ -10,17 +10,16 @@ import {
 import { CreateItemDto } from './dto/create-item.dto';
 import { ItemsService } from './items.service';
 import { Item } from './interfaces/item.interface';
-import { User as UserModel } from '@prisma/generated'
-
+import { User as UserModel } from '@prisma/generated';
 
 @Controller('items')
 export class ItemsController {
   constructor(private readonly itemService: ItemsService) {}
 
-  // @Get()
-  // findAll(): Item[] {
-  //   return this.itemService.findAll();
-  // }
+  @Get()
+  async findAll(): Promise<UserModel[]> {
+    return this.itemService.findAll();
+  }
 
   @Get(':id')
   findOne(@Param() param): string {
@@ -29,7 +28,7 @@ export class ItemsController {
 
   @Post('user')
   async signupUser(
-    @Body() userData: { name?: string; email: string } 
+    @Body() userData: { name?: string; email: string },
   ): Promise<UserModel> {
     return this.itemService.createUser(userData);
   }
