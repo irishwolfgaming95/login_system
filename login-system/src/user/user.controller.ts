@@ -32,7 +32,7 @@ export class UserController {
 
   @Post('user')
   async signupUser(
-    @Body() userData: { name?: string; email: string },
+    @Body() userData: { username: string; password: string },
   ): Promise<UserModel> {
     return this.userService.createUser(userData);
   }
