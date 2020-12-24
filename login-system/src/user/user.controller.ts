@@ -8,9 +8,13 @@ import {
   Param,
 } from '@nestjs/common';
 import { CreateUserDto } from 'src/items/dto/create-user.dto';
+import { User as UserModel } from '@prisma/generated';
+import { UserService } from './user.service';
 
 @Controller('user')
 export class UserController {
+  constructor(private readonly userService: UserService) {}
+
   @Get()
   findAll() {
     return 'get all users';
@@ -24,5 +28,12 @@ export class UserController {
   @Put(':id')
   update(@Body() updateItemDto: CreateUserDto, @Param('id') id): string {
     return `Update ${id}-Username: ${updateItemDto.username}`;
+  }
+
+  @Post('user')
+  async signupUser(
+    @Body() userData: { name?: string; email: string },
+  ): Promise<UserModel> {
+    return this.userService.createUser(userData);
   }
 }
