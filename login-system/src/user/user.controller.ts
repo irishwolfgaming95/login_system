@@ -25,10 +25,13 @@ export class UserController {
   }
 
   @Put('update/:id')
-  async update(@Param('id') id): Promise<UserModel> {
+  async update(
+    @Param('id') id,
+    @Body() updateData: { username: string; password: string },
+  ): Promise<UserModel> {
     return this.userService.updateUser({
-      data: { username: String(), password: String() },
       where: { id: Number(id) },
+      data: { username: String(updateData.username), password: String(updateData.password) },
     });
   }
 
