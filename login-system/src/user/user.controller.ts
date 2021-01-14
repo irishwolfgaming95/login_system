@@ -24,18 +24,21 @@ export class UserController {
     return this.userService.deleteUser({ id: Number(id) });
   }
 
-  @Put('update/:id')
+  @Put('user/:id')
   async update(
     @Param('id') id,
     @Body() updateData: { username: string; password: string },
   ): Promise<UserModel> {
     return this.userService.updateUser({
       where: { id: Number(id) },
-      data: { username: String(updateData.username), password: String(updateData.password) },
+      data: {
+        username: String(updateData.username),
+        password: String(updateData.password),
+      },
     });
   }
 
-  @Post('user')
+  @Post()
   async signupUser(
     @Body() userData: { username: string; password: string },
   ): Promise<UserModel> {

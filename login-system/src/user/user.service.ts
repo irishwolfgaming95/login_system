@@ -27,4 +27,8 @@ export class UserService {
   async findAll() {
     return this.prisma.user.findMany();
   }
+
+  async findOne(where: Prisma.UserWhereUniqueInput): Promise<User | undefined> {
+    return this.prisma.user.findUnique({ where });
+  }
 }
