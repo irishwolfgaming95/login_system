@@ -1,11 +1,19 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, ForbiddenException, Post } from '@nestjs/common';
 import { User as UserModel } from '@prisma/generated';
-import { UserService } from 'src/user/user.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { UserService } from '../user/user.service';
+import { Prisma, User } from '@prisma/generated';
+import * as bcrypt from 'bcrypt';
+import { throwError } from 'rxjs';
+
+const saltOrRounds = 10;
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly userService: UserService,
+  ) {}
 
   @Post('login')
   async loginUser(
@@ -15,12 +23,21 @@ export class AuthController {
       where: { username: loginData.username },
     });
 
-    if (user?.password === loginData.password) {
-      delete user.password;
+    const match = await bcrypt.compare(loginData.password, user.password);
+    if (match) {
       return user;
     }
-    throw new Error('failed');
+    throw new ForbiddenException('login failed');
+  }
 
-    return user;
+  @Post('register')
+  async User(@Body() userData: Prisma.UserCreateInput): Promise<UserModel> {
+    const hashedPassword = await bcrypt.hash(userData.password, saltOrRounds);
+    console.log(hashedPassword, userData);
+
+    return this.userService.createUser({
+      ...userData,
+      password: hashedPassword,
+    });
   }
 }
