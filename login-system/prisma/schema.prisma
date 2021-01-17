@@ -1,21 +1,18 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../node_modules/@prisma/generated"
+  binaryTargets = ["native"]
+}
 
 datasource db {
   provider = "postgresql"
   url      = "postgresql://postgres:postgres@localhost:5432/postgres?schema=public"
 }
 
-generator client {
-  provider = "prisma-client-js"
-  output   = "../node_modules/@prisma/generated"
-  binaryTargets = ["native"]
-}
-
 model User {
-  username String @default("username")
-  password String @default("password")
-  id Int @default(autoincrement()) @id
+  email    String? @unique
+  id       Int     @id @default(autoincrement())
+  username String  @default("username") @unique
+  hashedPassword String  @default("password")
   name String?
-  email String? @unique
 }

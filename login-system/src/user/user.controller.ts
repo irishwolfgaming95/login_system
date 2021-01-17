@@ -32,8 +32,9 @@ export class UserController {
     return this.userService.updateUser({
       where: { id: Number(id) },
       data: {
-        username: String(updateData.username),
-        password: String(updateData.password),
+        ...updateData,
+        username: updateData.username,
+        hashedPassword: updateData.password,
       },
     });
   }

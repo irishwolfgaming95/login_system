@@ -23,7 +23,7 @@ export class AuthController {
       where: { username: loginData.username },
     });
 
-    const match = await bcrypt.compare(loginData.password, user.password);
+    const match = await bcrypt.compare(loginData.password, user.hashedPassword);
     if (match) {
       return user;
     }
@@ -32,12 +32,15 @@ export class AuthController {
 
   @Post('register')
   async User(@Body() userData: Prisma.UserCreateInput): Promise<UserModel> {
-    const hashedPassword = await bcrypt.hash(userData.password, saltOrRounds);
+    const hashedPassword = await bcrypt.hash(
+      userData.hashedPassword,
+      saltOrRounds,
+    );
     console.log(hashedPassword, userData);
 
     return this.userService.createUser({
       ...userData,
-      password: hashedPassword,
+      hashedPassword: hashedPassword,
     });
   }
 }
