@@ -1,10 +1,15 @@
-import { Body, Controller, ForbiddenException, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Post,
+  Session,
+} from '@nestjs/common';
 import { User as UserModel } from '@prisma/generated';
 import { PrismaService } from '../prisma/prisma.service';
 import { UserService } from '../user/user.service';
 import { Prisma, User } from '@prisma/generated';
 import * as bcrypt from 'bcrypt';
-import { throwError } from 'rxjs';
 
 const saltOrRounds = 10;
 
@@ -17,30 +22,53 @@ export class AuthController {
 
   @Post('login')
   async loginUser(
-    @Body() loginData: { username: string; password: string },
+    @Body() loginData: LoginDto,
+    @Session() session: Record<string, any>,
   ): Promise<UserModel> {
+    session.user = session.user ? session.user : loginData.username;
+    console.log(loginData);
+
+    console.log(session.user);
+
+    const sessionUser = await session.user;
+
     const user = await this.prismaService.user.findFirst({
       where: { username: loginData.username },
     });
 
     const match = await bcrypt.compare(loginData.password, user.hashedPassword);
+
+    console.log(match);
     if (match) {
-      return user;
+      delete user.hashedPassword;
+
+      return sessionUser;
+
+      
     }
     throw new ForbiddenException('login failed');
   }
 
   @Post('register')
   async User(@Body() userData: Prisma.UserCreateInput): Promise<UserModel> {
+    console.log(userData);
     const hashedPassword = await bcrypt.hash(
       userData.hashedPassword,
       saltOrRounds,
     );
-    console.log(hashedPassword, userData);
+    console.log(hashedPassword);
 
-    return this.userService.createUser({
+    const response = await this.userService.createUser({
       ...userData,
       hashedPassword: hashedPassword,
     });
+    delete userData.hashedPassword;
+
+    return response;
   }
+}
+
+export interface LoginDto {
+  username: string;
+  password: string;
 }
