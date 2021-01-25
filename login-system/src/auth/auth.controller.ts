@@ -25,12 +25,9 @@ export class AuthController {
     @Body() loginData: LoginDto,
     @Session() session: Record<string, any>,
   ): Promise<UserModel> {
-    session.user = session.user ? session.user : loginData.username;
     console.log(loginData);
 
-    console.log(session.user);
-
-    const sessionUser = await session.user;
+    const sessionUser = await session.cookie;
 
     const user = await this.prismaService.user.findFirst({
       where: { username: loginData.username },
@@ -43,8 +40,6 @@ export class AuthController {
       delete user.hashedPassword;
 
       return sessionUser;
-
-      
     }
     throw new ForbiddenException('login failed');
   }

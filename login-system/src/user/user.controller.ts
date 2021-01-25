@@ -17,17 +17,19 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  async findAll(@Session() session: Record<string, any>) {
-    session.visits = session.visits ? session.visits + 1 : 1;
-    return session;
-  }
-
-  async findAllUsers(): Promise<UserModel[]> {
+  async findAllUsers(
+    @Session() session: Record<string, any>,
+  ): Promise<UserModel[]> {
+    return session.cookie;
     return this.userService.findAll();
   }
 
   @Delete(':id')
-  async delete(@Param('id') id): Promise<UserModel> {
+  async delete(
+    @Param('id') id,
+    @Session() session: Record<string, any>,
+  ): Promise<UserModel> {
+    return session.cookie;
     return this.userService.deleteUser({ id: Number(id) });
   }
 
@@ -35,8 +37,9 @@ export class UserController {
   async update(
     @Param('id') id,
     @Body() updateData: Prisma.UserUpdateInput,
+    @Session() session: Record<string, any>,
   ): Promise<UserModel> {
-    return this.userService.updateUser({
+    const update = await this.userService.updateUser({
       where: { id: Number(id) },
       data: {
         ...updateData,
@@ -44,12 +47,15 @@ export class UserController {
         hashedPassword: updateData.hashedPassword,
       },
     });
+    return session.cookie;
   }
 
   @Post()
   async signupUser(
     @Body() userData: Prisma.UserCreateInput,
+    @Session() session: Record<string, any>,
   ): Promise<UserModel> {
+    return session.cookie;
     return this.userService.createUser(userData);
   }
 }
