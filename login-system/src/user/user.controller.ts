@@ -4,24 +4,36 @@ import {
   Post,
   Put,
   Delete,
+  ForbiddenException,
   Body,
   Param,
   Session,
 } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
 import { User as UserModel } from '@prisma/generated';
 import { UserService } from './user.service';
 import { Prisma, User } from '@prisma/generated';
 
 @Controller('user')
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(private readonly userService: UserService, private prisma: PrismaService) {}
+
+  @Get('me')
+  async findMe(@Session() session: Record<string, any>): Promise<UserModel> {
+    const {username} = session;
+    if (!username) {
+      throw new ForbiddenException('not logged in');
+    }
+    const user = await this.prisma.user.findFirst({where: {username}})
+    delete user.hashedPassword
+    return user;
+  }
 
   @Get()
   async findAllUsers(
     @Session() session: Record<string, any>,
-  ): Promise<UserModel[]> {
-    return session.cookie;
-    return this.userService.findAll();
+  ): Promise<any> {
+    return session;
   }
 
   @Delete(':id')

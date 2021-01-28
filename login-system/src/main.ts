@@ -9,7 +9,6 @@ async function bootstrap() {
       secret: 'MYSECRET',
       resave: false,
       saveUninitialized: false,
-      cookie: { path: '/auth/login', domain: 'http://localhost:3000/' },
     }),
   );
   await app.listen(3000);

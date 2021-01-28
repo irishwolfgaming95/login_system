@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   ForbiddenException,
+  Get,
   Post,
   Session,
 } from '@nestjs/common';
@@ -24,28 +25,29 @@ export class AuthController {
   async loginUser(
     @Body() loginData: LoginDto,
     @Session() session: Record<string, any>,
-  ): Promise<UserModel> {
+  ): Promise<any> {
     console.log(loginData);
-
-    const sessionUser = await session.cookie;
-
     const user = await this.prismaService.user.findFirst({
       where: { username: loginData.username },
     });
-
     const match = await bcrypt.compare(loginData.password, user.hashedPassword);
-
     console.log(match);
     if (match) {
       delete user.hashedPassword;
-
-      return sessionUser;
+      session.username = user.username
+      return user;
     }
     throw new ForbiddenException('login failed');
   }
 
+  @Get('logout')
+  async logout(@Session() session: Record<string, any>): Promise<boolean> {
+    delete session.username;
+    return true
+  }
+
   @Post('register')
-  async User(@Body() userData: Prisma.UserCreateInput): Promise<UserModel> {
+  async register(@Body() userData: Prisma.UserCreateInput): Promise<UserModel> {
     console.log(userData);
     const hashedPassword = await bcrypt.hash(
       userData.hashedPassword,
