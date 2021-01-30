@@ -40,7 +40,7 @@ export class UserController {
   async delete(
     @Param('id') id,
     @Session() session: Record<string, any>,
-  ): Promise<UserModel> {
+  ): Promise<any> {
     return session.cookie;
     return this.userService.deleteUser({ id: Number(id) });
   }
